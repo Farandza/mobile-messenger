@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "619510810214",
+    "project_id": "nimble-mobile-messenger",
+    "storage_bucket": "nimble-mobile-messenger.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:619510810214:android:a7c8d523262f033fb4cfa7",
+        "android_client_info": {
+          "package_name": "com.mobilemessenger.mobile_messenger"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8zTLMIsvWkihkwOw32IJ85ZMDdxwb46A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
