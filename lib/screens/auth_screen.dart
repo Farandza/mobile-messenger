@@ -43,9 +43,16 @@ class _AuthState extends State<Auth> {
       );
       return;
     }
-    if (signup && await profiles.usernameTaken(name.text.trim())) {
-      setState(() => error = 'That username is already in use.');
-      return;
+    if (signup) {
+      try {
+        if (await profiles.usernameTaken(name.text.trim())) {
+          setState(() => error = 'That username is already in use.');
+          return;
+        }
+      } catch (_) {
+        setState(() => error = 'Could not check that username. Check your connection and try again.');
+        return;
+      }
     }
     setState(() {
       busy = true;
@@ -58,12 +65,19 @@ class _AuthState extends State<Auth> {
           password: password.text,
         );
         await credential.user!.updateDisplayName(name.text.trim());
+        try {
+          await profiles.createProfile(
+            username: name.text.trim(),
+            about: '',
+            avatar: '',
+          );
+        } on StateError {
+          // A simultaneous registration took the username after the pre-check.
+          // Remove the just-created Auth account so the user can choose another.
+          await credential.user!.delete();
+          rethrow;
+        }
         await credential.user!.sendEmailVerification();
-        await profiles.createProfile(
-          username: name.text.trim(),
-          about: '',
-          avatar: '',
-        );
         widget.app.data.users.add(User(accountEmail, name.text.trim(), '', id: credential.user!.uid));
       } else {
         final credential = await auth.signInWithEmailAndPassword(
@@ -90,6 +104,8 @@ class _AuthState extends State<Auth> {
       if (mounted && signup) _verificationSent(accountEmail);
     } on FirebaseAuthException catch (exception) {
       if (mounted) setState(() => error = friendlyError(exception));
+    } on StateError catch (exception) {
+      if (mounted) setState(() => error = exception.message);
     } finally {
       if (mounted) setState(() => busy = false);
     }

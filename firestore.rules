@@ -6,7 +6,10 @@ service cloud.firestore {
       allow create, update: if request.auth != null && request.auth.uid == userId;
     }
     match /usernames/{usernameHash} {
-      allow read: if request.auth != null;
+      // Registration happens before the caller has a Firebase session. Permit
+      // an exact existence check only; username hashes cannot be listed.
+      allow get: if true;
+      allow list: if request.auth != null;
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
       allow update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
     }
