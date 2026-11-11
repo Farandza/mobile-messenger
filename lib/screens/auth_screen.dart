@@ -99,34 +99,29 @@ class _AuthState extends State<Auth> {
           avatar: localUser.avatar,
         );
       }
-      widget.app.data.active = accountEmail;
-      await widget.app.save();
-      if (mounted && signup) _verificationSent(accountEmail);
+      await widget.app.completeAuthentication(
+        accountEmail,
+        notice: signup
+            ? 'Verification link sent. Open it, then refresh verification from Profile.'
+            : null,
+      );
     } on FirebaseAuthException catch (exception) {
       if (mounted) setState(() => error = friendlyError(exception));
     } on StateError catch (exception) {
       if (mounted) setState(() => error = exception.message);
+    } on FirebaseException catch (exception) {
+      if (mounted) {
+        setState(
+          () => error = exception.message ?? 'Account setup failed. Please try again.',
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => error = 'Could not complete sign-in. Check your connection and try again.');
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }
-  }
-
-  void _verificationSent(String accountEmail) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Verification link sent'),
-        content: Text(
-          'Firebase sent a verification link to $accountEmail. Open it in your email, then return to the app and use Refresh verification from your Profile.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
   }
 
   void resetPassword() {

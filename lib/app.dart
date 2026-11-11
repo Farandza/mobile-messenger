@@ -52,6 +52,14 @@ class AppState extends State<Nimble> {
     }
   }
 
+  /// Saves the authenticated session and rebuilds this state so [Home] replaces
+  /// the sign-in page immediately.
+  Future<void> completeAuthentication(String email, {String? notice}) async {
+    data.active = email;
+    await save();
+    if (mounted) setState(() => warning = notice);
+  }
+
   @override
   Widget build(BuildContext c) => MaterialApp(
     debugShowCheckedModeBanner: false,
